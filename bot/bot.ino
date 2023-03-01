@@ -24,17 +24,18 @@ Servo servoRight;
 
 
 void setup() {
-  Serial.begin(9600); //start the serial monitor so we can view the output
+Serial.begin(9600); //start the serial monitor so we can view the output
 servoLeft.attach(11);                      // Attach left signal to pin 13
 servoRight.attach(12);                     // Attach right signal to pin 12
  maneuver(0, 0, 20); 
 
 //RFID code & Serial:
 
-  Serial1.begin(9600); // connect to the serial port for the RFID reader
+Serial1.begin(9600); // connect to the serial port for the RFID reader
   //mySerial.begin(9600); //lcd serial
   //mySerial.write(17); // backlight
-
+//XBEE serial start
+Serial2.begin(9600);
 
 
 
@@ -160,6 +161,12 @@ case 0: // hashmark
 
 
 } 
+
+
+
+//XBEE code:
+
+
  
 
  
@@ -240,7 +247,11 @@ char rfidData[len+1] = {};
   if(strcmp(rfidData, "61003BF34DE4") == 0) {
   Serial.println("Found code");
   finalCode = hash;
- 
+  
+  Serial2.print(String(finalCode)); // Send to XBee
+  Serial.println("sending message");
+  Serial.println(String(finalCode));
+  
   return rfidData;
 
   }
