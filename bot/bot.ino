@@ -260,6 +260,6 @@ char rfidData[len+1] = {};
   //mySerial.println(rfidData);
   }
 
-
+ 
 
 }
