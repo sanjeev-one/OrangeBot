@@ -4,6 +4,7 @@
 #define lineSensor3 52 // right  
 
 int hash = 1; // Hashmark number
+int finalCode = 0; // Final code
 
 // Define pins for built-in RGB LED
 #define redpin 45
@@ -138,7 +139,8 @@ case 0: // hashmark
 	hash = 0;
 	set_RGBi(0, 0, 0);
   RFID();
-
+  Serial.println("Final Code: ");
+  Serial.println(finalCode);
 	while(1==1){
 		maneuver(0,0,20); //freeze bot 
 	}
@@ -234,9 +236,18 @@ char rfidData[len+1] = {};
     }
   }
   Serial.println(rfidData);
+
+  if(strcmp(rfidData, "61003BF34DE4") == 0) {
+  Serial.println("Found code");
+  finalCode = hash;
+ 
+  return rfidData;
+
+  }
+  else {
   return rfidData;
   //mySerial.println(rfidData);
-
+  }
 
 
 
