@@ -17,11 +17,25 @@ Servo servoLeft;                             // Declare left and right servos
 Servo servoRight;
 
 
+
+
+
+
+
 void setup() {
   Serial.begin(9600); //start the serial monitor so we can view the output
 servoLeft.attach(11);                      // Attach left signal to pin 13
 servoRight.attach(12);                     // Attach right signal to pin 12
  maneuver(0, 0, 20); 
+
+//RFID code & Serial:
+
+  Serial1.begin(9600); // connect to the serial port for the RFID reader
+  //mySerial.begin(9600); //lcd serial
+  //mySerial.write(17); // backlight
+
+
+
 
 }
 void loop() {
@@ -33,7 +47,7 @@ void loop() {
 
 float ndShade;                             // Normalized differential shade
   ndShade = qti3 / (qti1+qti3) - 0.5;   // Calculate it and subtract 0.5
-Serial.println(ndShade); // Print
+//Serial.println(ndShade); // Print
 
 
   int speedLeft, speedRight;                 // Declare speed variables
@@ -79,7 +93,7 @@ maneuver(speedLeft, speedRight, 20);       // Set wheel speeds
 
  int state = 4*(qti1 <500 ) + 2*(qti2<500 ) + (qti3 < 500);
 
-Serial.println(state);
+//Serial.println(state);
 
 
 switch (state) {
@@ -93,31 +107,37 @@ case 0: // hashmark
 	if (hash == 1){
 	//red color
 	set_RGBi(255, 0, 0);
+  RFID();
 
 	}
 	if (hash == 2){
 	//yellow color
 	set_RGBi(255, 255, 0);
+  RFID();
 
 	}
 	if (hash == 3){
 	//green color
 	set_RGBi(0, 255, 0);
+  RFID();
 
 	}
 	if (hash == 4){
 	//blue color
 	set_RGBi(0, 0, 255);
+  RFID();
 
 	}
 	if (hash == 5){
 	//purple color
 	set_RGBi(125, 0, 225);
+  RFID();
 	
 	}
 	if (hash == 6){
 	hash = 0;
 	set_RGBi(0, 0, 0);
+  RFID();
 
 	while(1==1){
 		maneuver(0,0,20); //freeze bot 
@@ -186,4 +206,38 @@ void set_RGB(int r, int g, int b){
   analogWrite(redpin, r);
   analogWrite(greenpin, g);
   analogWrite(bluepin, b);
+}
+
+
+char RFID() {
+// RIFD code:
+
+char val = 0; // variable to store the data from the serial port
+int len = 12;
+
+char rfidData[len+1] = {};
+  int get_more = 1;
+  int i = 0;
+  
+  while(get_more == 1){
+    if(Serial1.available() > 0) {
+    val = Serial1.read();
+  
+      // Handle unprintable characters
+      switch(val) {
+        case 0x2: break;               // start of transmission - do not save
+        case 0x3: get_more = 0; break; // end of transmission - done with code
+        case 0xA: break;               // line feed - do not save
+        case 0xD: break;               // carriage return - do not save
+        default:  rfidData[i]=val; i+=1;  break; // actual character
+      }
+    }
+  }
+  Serial.println(rfidData);
+  return rfidData;
+  //mySerial.println(rfidData);
+
+
+
+
 }
