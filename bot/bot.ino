@@ -3,13 +3,20 @@
 #define lineSensor2 51  // middle 
 #define lineSensor3 52 // right  
 
-int hash = 1; // Hashmark number
-int finalCode = 0; // Final code
+int hash = 1; // Hashmark nsongber
+char finalCode = 0; // Final code
 
 // Define pins for built-in RGB LED
 #define redpin 45
 #define greenpin 46
 #define bluepin 44
+
+//LCD display
+#include <SoftwareSerial.h>
+#define TxPin 14
+SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
+
+
 
 
 #include <Servo.h>                           // Include servo library
@@ -17,7 +24,18 @@ int finalCode = 0; // Final code
 Servo servoLeft;                             // Declare left and right servos
 Servo servoRight;
 
+//song stuff - can delete
+#define nsong 17
+int durs[nsong]  = {211,211,211,210,210,211,211,211,211,211,211,211,210,210,211,211,212
+};
+int octs[nsong]  = {215, 215, 215, 215, 215, 
+                215, 215, 215, 215, 215, 215, 215, 215, 215, 215, 215, 215
+};
+int notes[nsong] = {220, 220, 220, 220, 220, 
+                220, 225, 232, 220, 220, 220, 220, 220, 220, 220, 225, 232
+};
 
+// end song stuff
 
 
 
@@ -32,11 +50,11 @@ servoRight.attach(12);                     // Attach right signal to pin 12
 //RFID code & Serial:
 
 Serial1.begin(9600); // connect to the serial port for the RFID reader
-  //mySerial.begin(9600); //lcd serial
-  //mySerial.write(17); // backlight
+mySerial.begin(9600); //lcd serial
+//mySerial.write(17); // backlight
+mySerial.write(21);  // turn off lcd
 //XBEE serial start
 Serial2.begin(9600);
-
 
 
 }
@@ -140,10 +158,12 @@ case 0: // hashmark
 	hash = 0;
 	set_RGBi(0, 0, 0);
   RFID();
-  Serial.println("Final Code: ");
-  Serial.println(finalCode);
+  
 	while(1==1){
 		maneuver(0,0,20); //freeze bot 
+    Serial2.print(finalCode); // Send to XBee
+    blink(); //blink LED
+
 	}
 	}
 
@@ -246,12 +266,38 @@ char rfidData[len+1] = {};
 
   if(strcmp(rfidData, "61003BF34DE4") == 0) {
   Serial.println("Found code");
-  finalCode = hash;
+  finalCode = char(hash + 48);
+
   
-  Serial2.print(String(finalCode)); // Send to XBee
+  //Serial2.print(String(finalCode)); // Send to XBee
+  Serial2.print(finalCode); // Send to XBee
+   Serial2.print(finalCode); // Send to XBee
+  Serial2.print(finalCode); // Send to XBee
+  Serial2.print(finalCode); // Send to XBee
+
+
   Serial.println("sending message");
   Serial.println(String(finalCode));
-  
+// led stuff
+delay(500);
+blink();
+
+
+// lcd stuff
+mySerial.write(24);  // cursor on
+delay(10);
+//mySerial.write(17);  // backlight on
+mySerial.write(128); // cursor home line 0
+delay(10);
+mySerial.print("Position: ");
+delay(10);
+mySerial.print(hash);
+delay(10);
+mySerial.write(148); // cursor home line 1
+//mySerial.write(18);  // backlight off
+play_song();
+
+
   return rfidData;
 
   }
@@ -262,4 +308,23 @@ char rfidData[len+1] = {};
 
  
 
+}
+
+void play_song() {
+ for(long k=0; k<nsong; k++){
+    
+    mySerial.write(durs[k]); mySerial.write(octs[k]); mySerial.write(notes[k]);
+    int len = 214 - durs[k];
+    float del = 2000 / pow(2, len);
+    delay(int(del*1.1));
+  }
+}
+void blink() {
+  // led stuff
+//delay(500);
+  set_RGBi(0, 0, 0);
+delay(500);
+  set_RGBi(255, 0, 0);
+delay(500);
+  set_RGBi(0, 0, 0);
 }
