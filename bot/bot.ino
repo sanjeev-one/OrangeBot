@@ -17,6 +17,9 @@ char finalCode = 0;  // Final code
 SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
 
 bool found = false;
+bool receiving = false;
+bool allHashesReceived = false;
+int check[] = {0, 0, 0, 0, 0};
 
 
 #include <Servo.h>  // Include servo library
@@ -140,6 +143,7 @@ void loop() {
         set_RGBi(0, 0, 255);
         if(!found){
         finalCode = RFID();}
+				receiving = true;
       }
       if (hash == 5) {
         //purple color
@@ -152,10 +156,22 @@ void loop() {
         set_RGBi(0, 0, 0);
         while (1 == 1) {
           maneuver(0, 0, 20);         //freeze bot
-          Serial2.print(finalCode);   // Send to XBee
-          delay(10);                  //
-          Serial.println(finalCode);  //print to serial monitor
+         // Serial2.print(finalCode);   // Send to XBee
+          delay(100);                  //
+          //Serial.println(finalCode);  //print to serial monitor
           blink();                    //blink LED
+
+					if(Serial2.available()){ // Is XBee data available?
+  					char recvHash = Serial2.read(); // Read character
+  					Serial.println(recvHash); // Send to serial monitor
+						check[int(recvHash) - 49] = int(recvHash) - 48;
+	
+						mySerial.write(148);  // cursor home line 1
+
+						mySerial.print(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
+            Serial.println(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
+
+					}
         }
       }
 
@@ -170,6 +186,26 @@ void loop() {
   }
 
 
+
+if( (receiving) && Serial2.available()){ // Is XBee data available?
+  char recvHash = Serial2.read(); // Read character
+  Serial.println(recvHash); // Send to serial monitor
+	check[recvHash - 1] = int(recvHash);
+	
+	mySerial.write(148);  // cursor home line 1
+
+	mySerial.print(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
+	
+
+}
+
+// CHECKING IF ALL HASHES ARE RECEIVED
+if((check[0] * check[1] * check[2] * check[3] * check[4]) == 120) {
+	allHashesReceived = true;
+  if(allHashesReceived){
+		Serial.println("All hashes received");
+	}
+}
 
   //XBEE code:
 }
@@ -250,7 +286,8 @@ char RFID() {
   if (strcmp(rfidData, "61003BF34DE4") == 0) {
     Serial.println("Found code");
     finalCode = char(hash + 48);
-
+		found = true;
+		check[hash - 1] = int(hash);
 
     //Serial2.print(String(finalCode)); // Send to XBee
     Serial2.print(finalCode);  // Send to XBee
@@ -276,9 +313,7 @@ char RFID() {
     delay(10);
     mySerial.print(hash);
     delay(10);
-    mySerial.write(148);  // cursor home line 1
     //mySerial.write(18);  // backlight off
-    play_song();
 
 		found = true;
     return finalCode;
