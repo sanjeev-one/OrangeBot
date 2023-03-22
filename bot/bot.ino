@@ -221,17 +221,18 @@ void loop()
 		if (hash == 7)
 		{
 
-			speedLeft = 200;
-			speedRight = -50;
+			speedLeft = 50;
+			speedRight = -40;
 			maneuver(speedLeft, speedRight, 20); // Set wheel speeds
 
-			delay(45);
+			delay(20);
 		}
 
-		if (hash == 12 - finalCode)
+		if (hash == 13 - (finalCode - 48))
 		{
-
-			maneuver(0, 0, 20); // Stop
+      while(1==1){
+			maneuver(0, 0, 20); // Stop 
+      }
 		}
 		delay(1000);
 		set_RGBi(0, 0, 0);
