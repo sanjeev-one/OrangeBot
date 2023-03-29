@@ -168,8 +168,11 @@ void loop()
 
 			while (!allHashesReceived)
 			{
+				if (!((check[0] * check[1] * check[2] * check[3] * check[4]) == 120))
+				{
 
-				Serial2.print(finalCode); // Send to XBee
+					Serial2.print(finalCode); // Send to XBee
+				}
 				for (int i = 0; i < 4; i++)
 				{
 					// get other people's codes
@@ -253,40 +256,41 @@ void loop()
 
 			delay(20);
 		}
-    if(hash == 8){
+		if (hash == 8)
+		{
 
-      	Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(200);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(500);
-    }
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(200);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(500);
+		}
 
 		if (hash == 13 - (finalCode - 48))
 		{
-			maneuver(0, 0, 20); // Stop
-		//	if (((finalCode - 47) < 6))
-		//	{
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(100);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(200);
-				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
-				delay(500);
-		//	}
+			maneuver(0, 0, 20);						   // Stop
+													   //	if (((finalCode - 47) < 6))
+													   //	{
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(100);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(200);
+			Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+			delay(500);
+			//	}
 
 			while (1 == 1)
 			{
