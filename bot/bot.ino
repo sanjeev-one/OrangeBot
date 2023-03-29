@@ -4,7 +4,7 @@
 #define lineSensor2 51 // middle
 #define lineSensor3 52 // right
 
-int hash = 1;		// Hashmark nsongber
+int hash = 1;		// Hashmark counter
 char finalCode = 0; // Final code
 
 // Define pins for built-in RGB LED
@@ -22,10 +22,16 @@ bool receiving = false;
 bool allHashesReceived = false;
 int check[] = {0, 0, 0, 0, 0};
 
+bool letterfound = false;
+
 #include <Servo.h> // Include servo library
 
 Servo servoLeft; // Declare left and right servos
 Servo servoRight;
+
+// array to wait for right letter to line up
+
+char dictionary[] = {0, 0, 'a', 'b', 'c', 'd'};
 
 // song stuff - can delete
 #define nsong 17
@@ -43,6 +49,8 @@ void setup()
 	servoLeft.attach(11);  // Attach left signal to pin 13
 	servoRight.attach(12); // Attach right signal to pin 12
 	maneuver(0, 0, 20);
+
+	Serial.println("test");
 
 	// RFID code & Serial:
 
@@ -155,40 +163,58 @@ void loop()
 
 			// Serial2.print(String(finalCode)); // Send to XBee
 
+			// stop moving
+			maneuver(0, 0, -1); // detach servos- freeze bot
+
 			while (!allHashesReceived)
 			{
 
 				Serial2.print(finalCode); // Send to XBee
-				Serial.println("sending message");
-				Serial.println(String(finalCode));
-
-				// get other people's codes
-				if (Serial2.available())
-				{									// Is XBee data available?
-					char recvHash = Serial2.read(); // Read character
-					Serial.println(recvHash);
-
-					delay(100);
-					check[recvHash - 49] = int(recvHash - 48);
-
-					mySerial.write(148); // cursor home line 1
-
-					mySerial.print(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
-					Serial.println(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
-				}
-
-				// CHECKING IF ALL HASHES ARE RECEIVED
-				if ((check[0] * check[1] * check[2] * check[3] * check[4]) == 120)
+				for (int i = 0; i < 4; i++)
 				{
-					allHashesReceived = true;
+					// get other people's codes
+					if (Serial2.available())
+					{									// Is XBee data available?
+						char recvHash = Serial2.read(); // Read character
+						Serial.println(recvHash);
 
-					if (allHashesReceived)
+						/* Serial.println("sending message");
+						Serial.println(String(finalCode)); */
+
+						// delay(100);
+						check[recvHash - 49] = int(recvHash - 48);
+
+						Serial.println(dictionary[finalCode - 48]);
+						Serial.println(dictionary[finalCode - 47]);
+						Serial.println("dict^");
+						if (recvHash == dictionary[finalCode - 48])
+						{
+							letterfound = true;
+							Serial.println("letter found is now trueee");
+						}
+
+						mySerial.write(148); // cursor home line 1
+
+						mySerial.print(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
+						Serial.println(String(check[0]) + " " + String(check[1]) + " " + " " + String(check[2]) + " " + String(check[3]) + " " + String(check[4]));
+					}
+
+					// CHECKING IF ALL HASHES ARE RECEIVED
+					if (((check[0] * check[1] * check[2] * check[3] * check[4]) == 120) && (letterfound == true))
 					{
-						Serial.println("All hashes received");
+						allHashesReceived = true;
+
+						servoLeft.attach(11);  // Attach left signal to pin 13
+						servoRight.attach(12); // Attach right signal to pin 12
+
+						/* if (allHashesReceived)
+						{
+							Serial.println("All hashes received");
+						} */
 					}
 				}
 
-				delay(100);
+				delay(300);
 			}
 		}
 		if (hash == 6)
@@ -227,12 +253,44 @@ void loop()
 
 			delay(20);
 		}
+    if(hash == 8){
+
+      	Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(200);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(500);
+    }
 
 		if (hash == 13 - (finalCode - 48))
 		{
-      while(1==1){
-			maneuver(0, 0, 20); // Stop 
-      }
+			maneuver(0, 0, 20); // Stop
+		//	if (((finalCode - 47) < 6))
+		//	{
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(100);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(200);
+				Serial2.print(dictionary[finalCode - 47]); // Send to XBee
+				delay(500);
+		//	}
+
+			while (1 == 1)
+			{
+			}
 		}
 		delay(1000);
 		set_RGBi(0, 0, 0);
@@ -273,7 +331,10 @@ void maneuver(int speedLeft, int speedRight, int msTime)
 		servoLeft.detach(); // Stop servo signals
 		servoRight.detach();
 	}
-	delay(msTime); // Delay for msTime
+	else
+	{
+		delay(msTime); // Delay for msTime
+	}
 }
 
 void set_RGBi(int r, int g, int b)
